@@ -148,6 +148,7 @@ export default function Home() {
   const [selectedCell, setSelectedCell] = useState<[number, number] | null>(
     null
   );
+  const [activeHelp, setActiveHelp] = useState(false);
 
   const generateSudoku = useCallback(() => {
     const fullBoard = generateEmptyBoard();
@@ -224,9 +225,17 @@ export default function Home() {
   }, []);
 
   const getTextColor = useCallback(
-    (row: number, col: number) =>
-      findDuplicates(board, row, col) ? "text-red-600" : "text-blue-600",
-    [board]
+    (row: number, col: number) => {
+      if (activeHelp) {
+        const currentValue = board[row][col];
+        const correctValue = solutionBoard[row][col];
+        return currentValue !== 0 && currentValue !== correctValue
+          ? "text-red-600"
+          : "text-blue-600";
+      }
+      return findDuplicates(board, row, col) ? "text-red-600" : "text-blue-600";
+    },
+    [board, activeHelp, solutionBoard]
   );
 
   const getCellClasses = useCallback(
@@ -276,6 +285,9 @@ export default function Home() {
           className={!selectedCell ? "opacity-50 cursor-not-allowed" : ""}
         >
           Reveal Selected Cell
+        </Button>
+        <Button onClick={() => setActiveHelp((prev) => !prev)}>
+          {activeHelp ? "Deactivate Help" : "Activate Help"}
         </Button>
       </div>
 
