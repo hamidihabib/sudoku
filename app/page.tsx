@@ -7,8 +7,7 @@ import { HTMLAttributes, ButtonHTMLAttributes, forwardRef } from "react";
 // UI Components
 // ==========================
 
-interface CardProps extends HTMLAttributes<HTMLDivElement> {}
-const Card = forwardRef<HTMLDivElement, CardProps>(
+const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className = "", ...props }, ref) => (
     <div
       ref={ref}
@@ -19,16 +18,16 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
 );
 Card.displayName = "Card";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {}
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className = "", ...props }, ref) => (
-    <button
-      ref={ref}
-      className={`rounded-md bg-blue-600 px-4 py-2 text-white font-bold shadow hover:bg-blue-700 ${className}`}
-      {...props}
-    />
-  )
-);
+const Button = forwardRef<
+  HTMLButtonElement,
+  ButtonHTMLAttributes<HTMLButtonElement>
+>(({ className = "", ...props }, ref) => (
+  <button
+    ref={ref}
+    className={`rounded-md bg-blue-600 px-4 py-2 text-white font-bold shadow hover:bg-blue-700 ${className}`}
+    {...props}
+  />
+));
 Button.displayName = "Button";
 
 // ==========================
@@ -138,18 +137,24 @@ const isBoardSolved = (board: number[][], solution: number[][]) => {
 export default function Home() {
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [board, setBoard] = useState(() => generateEmptyBoard());
-  const [originalBoard, setOriginalBoard] = useState(() => generateEmptyBoard());
-  const [solutionBoard, setSolutionBoard] = useState(() => generateEmptyBoard());
+  const [originalBoard, setOriginalBoard] = useState(() =>
+    generateEmptyBoard()
+  );
+  const [solutionBoard, setSolutionBoard] = useState(() =>
+    generateEmptyBoard()
+  );
   const [showSolution, setShowSolution] = useState(false);
   const [winMessage, setWinMessage] = useState("");
-  const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null);
+  const [selectedCell, setSelectedCell] = useState<[number, number] | null>(
+    null
+  );
 
   const generateSudoku = useCallback(() => {
     const fullBoard = generateEmptyBoard();
     fillBoard(fullBoard);
     const puzzle = structuredClone(fullBoard);
     removeNumbers(puzzle, difficulties[difficulty]);
-    
+
     setBoard(puzzle);
     setOriginalBoard(puzzle);
     setSolutionBoard(fullBoard);
@@ -162,12 +167,12 @@ export default function Home() {
     (row: number, col: number, value: string) => {
       const num = parseInt(value);
       const newValue = Number.isNaN(num) || num < 1 || num > 9 ? 0 : num;
-      
-      setBoard(prev => {
-        const updated = prev.map((r, i) => 
-          i === row ? r.map((c, j) => j === col ? newValue : c) : r
+
+      setBoard((prev) => {
+        const updated = prev.map((r, i) =>
+          i === row ? r.map((c, j) => (j === col ? newValue : c)) : r
         );
-        
+
         if (isBoardSolved(updated, solutionBoard)) {
           setWinMessage("Congratulations! You've solved the Sudoku!");
         } else if (winMessage) {
@@ -184,25 +189,30 @@ export default function Home() {
     const [row, col] = selectedCell;
     if (originalBoard[row][col] !== 0) return;
 
-    setBoard(prev => {
-      const updated = prev.map((r, i) => 
-        i === row ? r.map((c, j) => j === col ? solutionBoard[row][col] : c) : r
+    setBoard((prev) => {
+      const updated = prev.map((r, i) =>
+        i === row
+          ? r.map((c, j) => (j === col ? solutionBoard[row][col] : c))
+          : r
       );
-      
+
       if (isBoardSolved(updated, solutionBoard)) {
         setWinMessage("Congratulations! You've solved the Sudoku!");
       }
       return updated;
     });
-    
+
     setSelectedCell(null);
   }, [selectedCell, solutionBoard, originalBoard]);
 
-  const handleCellSelect = useCallback((row: number, col: number) => {
-    if (originalBoard[row][col] === 0) {
-      setSelectedCell([row, col]);
-    }
-  }, [originalBoard]);
+  const handleCellSelect = useCallback(
+    (row: number, col: number) => {
+      if (originalBoard[row][col] === 0) {
+        setSelectedCell([row, col]);
+      }
+    },
+    [originalBoard]
+  );
 
   const getBorderClasses = useCallback((row: number, col: number) => {
     let classes = "border border-gray-400";
@@ -219,22 +229,28 @@ export default function Home() {
     [board]
   );
 
-  const getCellClasses = useCallback((row: number, col: number) => {
-    let classes = "";
-    if (selectedCell?.[0] === row && selectedCell?.[1] === col) {
-      classes += " bg-yellow-100";
-    }
-    return classes;
-  }, [selectedCell]);
+  const getCellClasses = useCallback(
+    (row: number, col: number) => {
+      let classes = "";
+      if (selectedCell?.[0] === row && selectedCell?.[1] === col) {
+        classes += " bg-yellow-100";
+      }
+      return classes;
+    },
+    [selectedCell]
+  );
 
   const displayedBoard = showSolution ? solutionBoard : board;
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-white">
       <h1 className="text-4xl font-bold mb-6 text-gray-800">Sudoku</h1>
-      
+      <p className="mb-5">Click the 'New Game' button to start a new game.</p>
+
       {winMessage && (
-        <div className="text-green-600 text-xl font-bold mb-6">{winMessage}</div>
+        <div className="text-green-600 text-xl font-bold mb-6">
+          {winMessage}
+        </div>
       )}
 
       <div className="mb-4 flex gap-2 flex-wrap justify-center">
@@ -254,7 +270,7 @@ export default function Home() {
         <Button onClick={() => setShowSolution((prev) => !prev)}>
           {showSolution ? "Hide Solution" : "Show All Solutions"}
         </Button>
-        <Button 
+        <Button
           onClick={handleShowSelectedSolution}
           disabled={!selectedCell}
           className={!selectedCell ? "opacity-50 cursor-not-allowed" : ""}
@@ -270,9 +286,10 @@ export default function Home() {
             return (
               <Card
                 key={`${rowIndex}-${colIndex}`}
-                className={`${getBorderClasses(rowIndex, colIndex)} ${
-                  getCellClasses(rowIndex, colIndex)
-                } bg-white`}
+                className={`${getBorderClasses(
+                  rowIndex,
+                  colIndex
+                )} ${getCellClasses(rowIndex, colIndex)} bg-white`}
               >
                 {isOriginal ? (
                   <span className="text-gray-800 text-xl font-bold">{num}</span>
@@ -280,15 +297,18 @@ export default function Home() {
                   <input
                     type="text"
                     maxLength={1}
-                    className={`w-full h-full text-center text-xl font-bold focus:outline-none ${
-                      getTextColor(rowIndex, colIndex)
-                    }`}
+                    className={`w-full h-full text-center text-xl font-bold focus:outline-none ${getTextColor(
+                      rowIndex,
+                      colIndex
+                    )}`}
                     value={num || ""}
                     onChange={(e) =>
                       handleInputChange(rowIndex, colIndex, e.target.value)
                     }
                     onClick={() => handleCellSelect(rowIndex, colIndex)}
-                    aria-label={`Cell at row ${rowIndex + 1}, column ${colIndex + 1}`}
+                    aria-label={`Cell at row ${rowIndex + 1}, column ${
+                      colIndex + 1
+                    }`}
                   />
                 )}
               </Card>
