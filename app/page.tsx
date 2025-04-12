@@ -8,27 +8,31 @@ import { HTMLAttributes, ButtonHTMLAttributes, forwardRef } from "react";
 // ==========================
 
 // Card component - a reusable styled div
-export interface CardProps extends HTMLAttributes<HTMLDivElement> {}
+interface CardProps extends HTMLAttributes<HTMLDivElement> {}
 
-export const Card = forwardRef<HTMLDivElement, CardProps>(({ className = "", ...props }, ref) => (
-  <div
-    ref={ref}
-    className={`flex items-center justify-center w-12 h-12 text-xl font-semibold ${className}`}
-    {...props}
-  />
-));
+const Card = forwardRef<HTMLDivElement, CardProps>(
+  ({ className = "", ...props }, ref) => (
+    <div
+      ref={ref}
+      className={`flex items-center justify-center w-12 h-12 text-xl font-semibold ${className}`}
+      {...props}
+    />
+  )
+);
 Card.displayName = "Card";
 
 // Button component - a reusable styled button
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {}
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {}
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ className = "", ...props }, ref) => (
-  <button
-    ref={ref}
-    className={`rounded-md bg-blue-600 px-4 py-2 text-white font-bold shadow hover:bg-blue-700 ${className}`}
-    {...props}
-  />
-));
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className = "", ...props }, ref) => (
+    <button
+      ref={ref}
+      className={`rounded-md bg-blue-600 px-4 py-2 text-white font-bold shadow hover:bg-blue-700 ${className}`}
+      {...props}
+    />
+  )
+);
 Button.displayName = "Button";
 
 // ==========================
@@ -45,7 +49,8 @@ const difficulties: Record<Difficulty, number> = {
 };
 
 // Generate a 9x9 board filled with zeros
-const generateEmptyBoard = () => Array.from({ length: 9 }, () => Array(9).fill(0));
+const generateEmptyBoard = () =>
+  Array.from({ length: 9 }, () => Array(9).fill(0));
 
 // Fisher-Yates shuffle to randomize an array
 const shuffle = (array: any[]) => {
@@ -102,7 +107,11 @@ const removeNumbers = (board: number[][], clues: number) => {
 };
 
 // Check if a cell value is duplicated in its row or column
-const findDuplicates = (board: number[][], row: number, col: number): boolean => {
+const findDuplicates = (
+  board: number[][],
+  row: number,
+  col: number
+): boolean => {
   const value = board[row][col];
   let isDuplicate = false;
 
@@ -145,8 +154,12 @@ export default function Home() {
   // State for managing game
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [board, setBoard] = useState<number[][]>(generateEmptyBoard());
-  const [originalBoard, setOriginalBoard] = useState<number[][]>(generateEmptyBoard());
-  const [solutionBoard, setSolutionBoard] = useState<number[][]>(generateEmptyBoard());
+  const [originalBoard, setOriginalBoard] = useState<number[][]>(
+    generateEmptyBoard()
+  );
+  const [solutionBoard, setSolutionBoard] = useState<number[][]>(
+    generateEmptyBoard()
+  );
   const [showSolution, setShowSolution] = useState(false);
   const [winMessage, setWinMessage] = useState<string>("");
 
@@ -155,7 +168,10 @@ export default function Home() {
     const fullBoard = generateEmptyBoard();
     fillBoard(fullBoard);
 
-    const puzzle = removeNumbers(JSON.parse(JSON.stringify(fullBoard)), difficulties[difficulty]);
+    const puzzle = removeNumbers(
+      JSON.parse(JSON.stringify(fullBoard)),
+      difficulties[difficulty]
+    );
 
     setBoard(puzzle);
     setOriginalBoard(puzzle);
@@ -224,9 +240,7 @@ export default function Home() {
           <option value="hard">Hard</option>
         </select>
 
-        <Button onClick={generateSudoku}>
-          Generate
-        </Button>
+        <Button onClick={generateSudoku}>Generate</Button>
 
         <Button onClick={() => setShowSolution((prev) => !prev)}>
           {showSolution ? "Hide Solution" : "Show Solution"}
@@ -235,7 +249,7 @@ export default function Home() {
 
       {/* Sudoku Grid */}
       <div className="grid grid-cols-9">
-        {displayedBoard.map((row, rowIndex) => (
+        {displayedBoard.map((row, rowIndex) =>
           row.map((num, colIndex) => {
             const isOriginal = originalBoard[rowIndex][colIndex] !== 0;
             return (
@@ -249,15 +263,20 @@ export default function Home() {
                   <input
                     type="text"
                     maxLength={1}
-                    className={`w-full h-full text-center text-xl font-bold focus:outline-none ${getTextColor(rowIndex, colIndex)}`}
+                    className={`w-full h-full text-center text-xl font-bold focus:outline-none ${getTextColor(
+                      rowIndex,
+                      colIndex
+                    )}`}
                     value={num !== 0 ? num : ""}
-                    onChange={(e) => handleInputChange(rowIndex, colIndex, e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange(rowIndex, colIndex, e.target.value)
+                    }
                   />
                 )}
               </Card>
             );
           })
-        ))}
+        )}
       </div>
     </main>
   );
