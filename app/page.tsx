@@ -257,8 +257,8 @@ export default function Home() {
                 key={`${rowIndex}-${colIndex}`}
                 className={`${getBorderClasses(rowIndex, colIndex)} bg-white`}
               >
-                {isOriginal || showSolution ? (
-                  <span className="text-gray-800 text-xl font-bold">{num}</span> // Show original puzzle numbers
+                {isOriginal ? (
+                  <span className={"text-gray-800 text-xl font-bold"}>{num}</span> // Show original puzzle numbers
                 ) : (
                   <input
                     type="text"
