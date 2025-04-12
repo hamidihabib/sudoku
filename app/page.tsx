@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { HTMLAttributes, ButtonHTMLAttributes, forwardRef } from "react";
 
 // ==========================
@@ -250,6 +250,10 @@ export default function Home() {
   );
 
   const displayedBoard = showSolution ? solutionBoard : board;
+
+  useEffect(() => {
+    generateSudoku();
+  }, []);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-white">
