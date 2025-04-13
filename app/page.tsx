@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useState, useCallback, useEffect } from "react";
 import { HTMLAttributes, ButtonHTMLAttributes, forwardRef } from "react";
+import jsPDF from "jspdf";
 
 // ==========================
 // UI Components
@@ -99,17 +99,11 @@ const findDuplicates = (board: number[][], row: number, col: number) => {
   const value = board[row][col];
   if (value === 0) return false;
 
-  // Check row
   for (let i = 0; i < 9; i++) {
     if (i !== col && board[row][i] === value) return true;
-  }
-
-  // Check column
-  for (let i = 0; i < 9; i++) {
     if (i !== row && board[i][col] === value) return true;
   }
 
-  // Check 3x3 box
   const startRow = Math.floor(row / 3) * 3;
   const startCol = Math.floor(col / 3) * 3;
   for (let i = startRow; i < startRow + 3; i++) {
@@ -138,17 +132,11 @@ const isBoardSolved = (board: number[][], solution: number[][]) => {
 export default function Home() {
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [board, setBoard] = useState(() => generateEmptyBoard());
-  const [originalBoard, setOriginalBoard] = useState(() =>
-    generateEmptyBoard()
-  );
-  const [solutionBoard, setSolutionBoard] = useState(() =>
-    generateEmptyBoard()
-  );
+  const [originalBoard, setOriginalBoard] = useState(() => generateEmptyBoard());
+  const [solutionBoard, setSolutionBoard] = useState(() => generateEmptyBoard());
   const [showSolution, setShowSolution] = useState(false);
   const [winMessage, setWinMessage] = useState("");
-  const [selectedCell, setSelectedCell] = useState<[number, number] | null>(
-    null
-  );
+  const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null);
   const [activeHelp, setActiveHelp] = useState(false);
 
   const generateSudoku = useCallback(() => {
@@ -164,6 +152,18 @@ export default function Home() {
     setWinMessage("");
     setSelectedCell(null);
   }, [difficulty]);
+
+  const generateMultipleSudokus = (count: number) => {
+    const sudokus = [];
+    for (let i = 0; i < count; i++) {
+      const fullBoard = generateEmptyBoard();
+      fillBoard(fullBoard);
+      const puzzle = structuredClone(fullBoard);
+      removeNumbers(puzzle, difficulties[difficulty]);
+      sudokus.push({ puzzle, solution: fullBoard });
+    }
+    return sudokus;
+  };
 
   const handleInputChange = useCallback(
     (row: number, col: number, value: string) => {
@@ -250,6 +250,86 @@ export default function Home() {
     [selectedCell]
   );
 
+  const handleDownloadPDF = useCallback(() => {
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const sudokus = generateMultipleSudokus(6);
+    const cellSize = 9;
+    const margin = 12;
+    const spacing = 2;
+    const puzzlesPerRow = 2;
+    const pageWidth = 210;
+
+    const drawSudokuGrid = (doc: jsPDF, board: number[][], startX: number, startY: number) => {
+      // Draw grid lines
+      for (let col = 0; col <= 9; col++) {
+        const x = startX + col * cellSize;
+        doc.setLineWidth(col % 3 === 0 ? 0.5 : 0.2);
+        doc.line(x, startY, x, startY + 9 * cellSize);
+      }
+      for (let row = 0; row <= 9; row++) {
+        const y = startY + row * cellSize;
+        doc.setLineWidth(row % 3 === 0 ? 0.5 : 0.2);
+        doc.line(startX, y, startX + 9 * cellSize, y);
+      }
+
+      // Add numbers with proper alignment
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+          const num = board[i][j];
+          if (num !== 0) {
+            const x = startX + j * cellSize + cellSize / 2;
+            const y = startY + (i + 0.5) * cellSize + 1;
+            doc.text(num.toString(), x, y, {
+              align: 'center',
+              baseline: 'middle'
+            });
+          }
+        }
+      }
+    };
+
+    // Puzzle Page
+    doc.setFontSize(16);
+    doc.text(`Sudoku Puzzles (${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)})`, margin, 15);
+    
+    sudokus.forEach((sudoku, index) => {
+      const row = Math.floor(index / puzzlesPerRow);
+      const col = index % puzzlesPerRow;
+      const x = margin + col * (9 * cellSize + spacing * 3);
+      const y = margin * 2 + row * (9 * cellSize + spacing * 3);
+      
+      if (y + 9 * cellSize > 280) {
+        doc.addPage();
+      }
+      
+      drawSudokuGrid(doc, sudoku.puzzle, x, y);
+      doc.rect(x, y, 9 * cellSize, 9 * cellSize);
+    });
+
+    // Solution Page
+    doc.addPage();
+    doc.setFontSize(16);
+    doc.text(`Sudoku Solutions (${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)})`, margin, 15);
+    
+    sudokus.forEach((sudoku, index) => {
+      const row = Math.floor(index / puzzlesPerRow);
+      const col = index % puzzlesPerRow;
+      const x = margin + col * (9 * cellSize + spacing * 3);
+      const y = margin * 2 + row * (9 * cellSize + spacing * 3);
+      
+      if (y + 9 * cellSize > 280) {
+        doc.addPage();
+      }
+      
+      drawSudokuGrid(doc, sudoku.solution, x, y);
+      doc.rect(x, y, 9 * cellSize, 9 * cellSize);
+    });
+
+    doc.save(`sudoku-${difficulty}-6-pack.pdf`);
+  }, [difficulty]);
+
   const displayedBoard = showSolution ? solutionBoard : board;
 
   useEffect(() => {
@@ -294,6 +374,7 @@ export default function Home() {
         <Button onClick={() => setActiveHelp((prev) => !prev)}>
           {activeHelp ? "Deactivate Help" : "Activate Help"}
         </Button>
+        <Button onClick={handleDownloadPDF}>Download 6 Sudokus (PDF)</Button>
       </div>
 
       <div className="grid grid-cols-9">
@@ -332,25 +413,6 @@ export default function Home() {
             );
           })
         )}
-      </div>
-      <div className="pt-5">
-        <Link
-          href="https://github.com/hamidihabib/sudoku"
-          target="_blank"
-          className="flex items-baseline"
-        >
-          <svg
-            height="32"
-            aria-hidden="true"
-            viewBox="0 0 24 24"
-            version="1.1"
-            width="32"
-            data-view-component="true"
-          >
-            <path d="M12 1C5.9225 1 1 5.9225 1 12C1 16.8675 4.14875 20.9787 8.52125 22.4362C9.07125 22.5325 9.2775 22.2025 9.2775 21.9137C9.2775 21.6525 9.26375 20.7862 9.26375 19.865C6.5 20.3737 5.785 19.1912 5.565 18.5725C5.44125 18.2562 4.905 17.28 4.4375 17.0187C4.0525 16.8125 3.5025 16.3037 4.42375 16.29C5.29 16.2762 5.90875 17.0875 6.115 17.4175C7.105 19.0812 8.68625 18.6137 9.31875 18.325C9.415 17.61 9.70375 17.1287 10.02 16.8537C7.5725 16.5787 5.015 15.63 5.015 11.4225C5.015 10.2262 5.44125 9.23625 6.1425 8.46625C6.0325 8.19125 5.6475 7.06375 6.2525 5.55125C6.2525 5.55125 7.17375 5.2625 9.2775 6.67875C10.1575 6.43125 11.0925 6.3075 12.0275 6.3075C12.9625 6.3075 13.8975 6.43125 14.7775 6.67875C16.8813 5.24875 17.8025 5.55125 17.8025 5.55125C18.4075 7.06375 18.0225 8.19125 17.9125 8.46625C18.6138 9.23625 19.04 10.2125 19.04 11.4225C19.04 15.6437 16.4688 16.5787 14.0213 16.8537C14.42 17.1975 14.7638 17.8575 14.7638 18.8887C14.7638 20.36 14.75 21.5425 14.75 21.9137C14.75 22.2025 14.9563 22.5462 15.5063 22.4362C19.8513 20.9787 23 16.8537 23 12C23 5.9225 18.0775 1 12 1Z"></path>
-          </svg>
-          https://github.com/hamidihabib/sudoku
-        </Link>
       </div>
     </main>
   );
