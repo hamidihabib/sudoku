@@ -291,7 +291,7 @@ export default function Home() {
           const num = board[i][j];
           if (num !== 0) {
             const x = startX + j * cellSize + cellSize / 2;
-            const y = startY + (i + 0.56) * cellSize + 1;
+            const y = startY + (i + 0.59) * cellSize + 1;
             doc.text(num.toString(), x, y, {
               align: "center",
             });
