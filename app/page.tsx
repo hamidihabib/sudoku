@@ -307,14 +307,14 @@ export default function Home() {
         difficulty.charAt(0).toUpperCase() + difficulty.slice(1)
       })`,
       20,
-      15
+      18
     );
 
     sudokus.forEach((sudoku, index) => {
       const row = Math.floor(index / puzzlesPerRow);
       const col = index % puzzlesPerRow;
       const x = 20 + col * (9 * cellSize + spacing * 3);
-      const y = margin * 2 + row * (9 * cellSize + spacing * 3);
+      const y = 11 * 2 + row * (9 * cellSize + spacing * 3);
 
       if (y + 9 * cellSize > 280) {
         doc.addPage();
@@ -332,14 +332,14 @@ export default function Home() {
         difficulty.charAt(0).toUpperCase() + difficulty.slice(1)
       })`,
       20,
-      15
+      18
     );
 
     sudokus.forEach((sudoku, index) => {
       const row = Math.floor(index / puzzlesPerRow);
       const col = index % puzzlesPerRow;
       const x = 20 + col * (9 * cellSize + spacing * 3);
-      const y = margin * 2 + row * (9 * cellSize + spacing * 3);
+      const y = 11 * 2 + row * (9 * cellSize + spacing * 3);
 
       if (y + 9 * cellSize > 280) {
         doc.addPage();
