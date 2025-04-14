@@ -132,11 +132,17 @@ const isBoardSolved = (board: number[][], solution: number[][]) => {
 export default function Home() {
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [board, setBoard] = useState(() => generateEmptyBoard());
-  const [originalBoard, setOriginalBoard] = useState(() => generateEmptyBoard());
-  const [solutionBoard, setSolutionBoard] = useState(() => generateEmptyBoard());
+  const [originalBoard, setOriginalBoard] = useState(() =>
+    generateEmptyBoard()
+  );
+  const [solutionBoard, setSolutionBoard] = useState(() =>
+    generateEmptyBoard()
+  );
   const [showSolution, setShowSolution] = useState(false);
   const [winMessage, setWinMessage] = useState("");
-  const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null);
+  const [selectedCell, setSelectedCell] = useState<[number, number] | null>(
+    null
+  );
   const [activeHelp, setActiveHelp] = useState(false);
 
   const generateSudoku = useCallback(() => {
@@ -251,15 +257,20 @@ export default function Home() {
   );
 
   const handleDownloadPDF = useCallback(() => {
-    const doc = new jsPDF('p', 'mm', 'a4');
+    const doc = new jsPDF("p", "mm", "a4");
     const sudokus = generateMultipleSudokus(6);
-    const cellSize = 9;
-    const margin = 12;
-    const spacing = 2;
+    const cellSize = 9.2;
+    const margin = 10;
+    const spacing = 1.5;
     const puzzlesPerRow = 2;
     const pageWidth = 210;
 
-    const drawSudokuGrid = (doc: jsPDF, board: number[][], startX: number, startY: number) => {
+    const drawSudokuGrid = (
+      doc: jsPDF,
+      board: number[][],
+      startX: number,
+      startY: number
+    ) => {
       // Draw grid lines
       for (let col = 0; col <= 9; col++) {
         const x = startX + col * cellSize;
@@ -273,17 +284,16 @@ export default function Home() {
       }
 
       // Add numbers with proper alignment
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "normal");
       for (let i = 0; i < 9; i++) {
         for (let j = 0; j < 9; j++) {
           const num = board[i][j];
           if (num !== 0) {
             const x = startX + j * cellSize + cellSize / 2;
-            const y = startY + (i + 0.5) * cellSize + 1;
+            const y = startY + (i + 0.56) * cellSize + 1;
             doc.text(num.toString(), x, y, {
-              align: 'center',
-              baseline: 'middle'
+              align: "center",
             });
           }
         }
@@ -292,18 +302,24 @@ export default function Home() {
 
     // Puzzle Page
     doc.setFontSize(16);
-    doc.text(`Sudoku Puzzles (${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)})`, margin, 15);
-    
+    doc.text(
+      `Sudoku Puzzles (${
+        difficulty.charAt(0).toUpperCase() + difficulty.slice(1)
+      })`,
+      20,
+      15
+    );
+
     sudokus.forEach((sudoku, index) => {
       const row = Math.floor(index / puzzlesPerRow);
       const col = index % puzzlesPerRow;
-      const x = margin + col * (9 * cellSize + spacing * 3);
+      const x = 20 + col * (9 * cellSize + spacing * 3);
       const y = margin * 2 + row * (9 * cellSize + spacing * 3);
-      
+
       if (y + 9 * cellSize > 280) {
         doc.addPage();
       }
-      
+
       drawSudokuGrid(doc, sudoku.puzzle, x, y);
       doc.rect(x, y, 9 * cellSize, 9 * cellSize);
     });
@@ -311,18 +327,24 @@ export default function Home() {
     // Solution Page
     doc.addPage();
     doc.setFontSize(16);
-    doc.text(`Sudoku Solutions (${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)})`, margin, 15);
-    
+    doc.text(
+      `Sudoku Solutions (${
+        difficulty.charAt(0).toUpperCase() + difficulty.slice(1)
+      })`,
+      20,
+      15
+    );
+
     sudokus.forEach((sudoku, index) => {
       const row = Math.floor(index / puzzlesPerRow);
       const col = index % puzzlesPerRow;
-      const x = margin + col * (9 * cellSize + spacing * 3);
+      const x = 20 + col * (9 * cellSize + spacing * 3);
       const y = margin * 2 + row * (9 * cellSize + spacing * 3);
-      
+
       if (y + 9 * cellSize > 280) {
         doc.addPage();
       }
-      
+
       drawSudokuGrid(doc, sudoku.solution, x, y);
       doc.rect(x, y, 9 * cellSize, 9 * cellSize);
     });
