@@ -361,7 +361,9 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-white">
       <h1 className="text-4xl font-bold mb-6 text-gray-800">Sudoku</h1>
-      <p className="mb-5">Click the 'New Game' button to start a new game.</p>
+      <p className="mb-5">
+        Click <strong>"New Game"</strong> to start playing.
+      </p>
 
       {winMessage && (
         <div className="text-green-600 text-xl font-bold mb-6">
@@ -369,55 +371,66 @@ export default function Home() {
         </div>
       )}
 
-      <div className="mb-4 flex gap-2 flex-wrap justify-center">
-        <select
-          className="rounded-md border p-2 text-lg shadow"
-          value={difficulty}
-          onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-        >
-          {Object.keys(difficulties).map((diff) => (
-            <option key={diff} value={diff}>
-              {diff.charAt(0).toUpperCase() + diff.slice(1)}
-            </option>
-          ))}
-        </select>
-
-        <Button onClick={generateSudoku}>New Game</Button>
-        <Button onClick={() => setShowSolution((prev) => !prev)}>
-          {showSolution ? "Hide Solution" : "Show All Solutions"}
-        </Button>
-        <Button
-          onClick={handleShowSelectedSolution}
-          disabled={!selectedCell}
-          className={!selectedCell ? "opacity-50 cursor-not-allowed" : ""}
-        >
-          Reveal Selected Cell
-        </Button>
-        <Button onClick={() => setActiveHelp((prev) => !prev)}>
-          {activeHelp ? "Deactivate Help" : "Activate Help"}
-        </Button>
-        <div className="flex items-center gap-2">
-          <input
-            type="number"
-            min="1"
-            max="1000"
-            value={numberOfSudokus}
-            onChange={(e) =>
-              setNumberOfSudokus(Math.max(1, parseInt(e.target.value) || 1))
-            }
-            className="rounded-md border p-2 text-lg shadow w-24"
-            disabled={isGeneratingPDF}
-          />
+      <div className="mb-4 grid gap-2 flex-wrap justify-center">
+        <div className="flex gap-1 items-center">
+          <h3 className="font-bold text-lg">Difficulty</h3>
+          <select
+            className="rounded-md border p-2 text-lg shadow"
+            value={difficulty}
+            onChange={(e) => setDifficulty(e.target.value as Difficulty)}
+          >
+            {Object.keys(difficulties).map((diff) => (
+              <option key={diff} value={diff}>
+                {diff.charAt(0).toUpperCase() + diff.slice(1)}
+              </option>
+            ))}
+          </select>
+          <Button onClick={generateSudoku}>New Game</Button>
         </div>
-        <Button
-          onClick={handleDownloadPDF}
-          disabled={isGeneratingPDF}
-          className="whitespace-nowrap"
-        >
-          {isGeneratingPDF
-            ? "Generating PDF..."
-            : `Download ${numberOfSudokus} Sudokus`}
-        </Button>
+
+        <div className="flex gap-1">
+          <div className="flex items-center gap-2">
+            <h3 className="font-bold text-lg">Number of Puzzles</h3>
+            <input
+              type="number"
+              min="1"
+              max="1000"
+              value={numberOfSudokus}
+              onChange={(e) =>
+                setNumberOfSudokus(Math.max(1, parseInt(e.target.value) || 1))
+              }
+              className="rounded-md border p-1 text-lg shadow w-20"
+              disabled={isGeneratingPDF}
+            />
+          </div>
+          <Button
+            onClick={handleDownloadPDF}
+            disabled={isGeneratingPDF}
+            className="whitespace-nowrap"
+          >
+            {isGeneratingPDF
+              ? "Generating PDF..."
+              : `Download ${numberOfSudokus} Puzzle${
+                  numberOfSudokus > 1 ? "s" : ""
+                }`}
+          </Button>
+        </div>
+
+        <div className="flex gap-1">
+          <Button onClick={() => setShowSolution((prev) => !prev)}>
+            {showSolution ? "Hide All Solutions" : "Show All Solutions"}
+          </Button>
+          <Button
+            onClick={handleShowSelectedSolution}
+            disabled={!selectedCell}
+            className={!selectedCell ? "opacity-50 cursor-not-allowed" : ""}
+          >
+            Reveal Selected Cell
+          </Button>
+          <Button onClick={() => setActiveHelp((prev) => !prev)}>
+            {activeHelp ? "Turn Off Help" : "Turn On Help"}
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-9">
