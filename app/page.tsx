@@ -347,7 +347,7 @@ export default function Home() {
       }
     });
 
-    doc.save(`sudoku-100-pack-${difficulty}.pdf`);
+    doc.save(`sudoku-102-pack-${difficulty}.pdf`);
     setIsGeneratingPDF(false);
   }, [difficulty]);
 
@@ -396,7 +396,7 @@ export default function Home() {
           {activeHelp ? "Deactivate Help" : "Activate Help"}
         </Button>
         <Button onClick={handleDownloadPDF} disabled={isGeneratingPDF}>
-          {isGeneratingPDF ? "Generating PDF..." : "Download 100 Sudokus"}
+          {isGeneratingPDF ? "Generating PDF..." : "Download 102 Sudokus"}
         </Button>
       </div>
 
