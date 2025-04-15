@@ -145,6 +145,7 @@ export default function Home() {
   );
   const [activeHelp, setActiveHelp] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [numberOfSudokus, setNumberOfSudokus] = useState(6);
 
   const generateSudoku = useCallback(() => {
     const fullBoard = generateEmptyBoard();
@@ -260,7 +261,7 @@ export default function Home() {
   const handleDownloadPDF = useCallback(async () => {
     setIsGeneratingPDF(true);
     const doc = new jsPDF("p", "mm", "a4");
-    const sudokus = generateMultipleSudokus(102);
+    const sudokus = generateMultipleSudokus(numberOfSudokus);
     const cellSize = 9.2;
     const margin = { x: 20, y: 20 };
     const spacing = 5;
@@ -347,9 +348,9 @@ export default function Home() {
       }
     });
 
-    doc.save(`sudoku-102-pack-${difficulty}.pdf`);
+    doc.save(`sudoku-${numberOfSudokus}-pack-${difficulty}.pdf`); // Update filename
     setIsGeneratingPDF(false);
-  }, [difficulty]);
+  }, [difficulty, numberOfSudokus]);
 
   const displayedBoard = showSolution ? solutionBoard : board;
 
@@ -395,8 +396,27 @@ export default function Home() {
         <Button onClick={() => setActiveHelp((prev) => !prev)}>
           {activeHelp ? "Deactivate Help" : "Activate Help"}
         </Button>
-        <Button onClick={handleDownloadPDF} disabled={isGeneratingPDF}>
-          {isGeneratingPDF ? "Generating PDF..." : "Download 102 Sudokus"}
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            min="1"
+            max="1000"
+            value={numberOfSudokus}
+            onChange={(e) =>
+              setNumberOfSudokus(Math.max(1, parseInt(e.target.value) || 1))
+            }
+            className="rounded-md border p-2 text-lg shadow w-24"
+            disabled={isGeneratingPDF}
+          />
+        </div>
+        <Button
+          onClick={handleDownloadPDF}
+          disabled={isGeneratingPDF}
+          className="whitespace-nowrap"
+        >
+          {isGeneratingPDF
+            ? "Generating PDF..."
+            : `Download ${numberOfSudokus} Sudokus`}
         </Button>
       </div>
 
