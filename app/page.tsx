@@ -260,7 +260,7 @@ export default function Home() {
   const handleDownloadPDF = useCallback(async () => {
     setIsGeneratingPDF(true);
     const doc = new jsPDF("p", "mm", "a4");
-    const sudokus = generateMultipleSudokus(6);
+    const sudokus = generateMultipleSudokus(102);
     const cellSize = 9.2;
     const margin = { x: 20, y: 20 };
     const spacing = 5;
@@ -294,7 +294,7 @@ export default function Home() {
           const num = board[i][j];
           if (num !== 0) {
             const xPos = x + j * cellSize + cellSize / 2;
-            const yPos = y + (i + 0.69) * cellSize;
+            const yPos = y + (i + 0.685) * cellSize;
             doc.text(num.toString(), xPos, yPos, { align: "center" });
           }
         }
@@ -312,7 +312,7 @@ export default function Home() {
         doc.addPage();
         currentPage++;
         currentY = margin.y;
-        doc.text(`Sudoku Puzzles - ${difficulty}`, 20, 18);
+        doc.text(`Sudoku Puzzles - ${difficulty}`, margin.x, 15);
       }
 
       const col = index % puzzlesPerRow;
