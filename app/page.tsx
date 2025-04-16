@@ -427,7 +427,7 @@ export default function Home() {
           >
             Reveal Selected Cell
           </Button>
-          <Button onClick={() => setActiveHelp((prev) => !prev)}>
+          <Button title="Display the number in red if there's an error." onClick={() => setActiveHelp((prev) => !prev)}>
             {activeHelp ? "Turn Off Help" : "Turn On Help"}
           </Button>
         </div>
